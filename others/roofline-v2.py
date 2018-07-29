@@ -30,7 +30,7 @@ xmin, xmax, ymin, ymax = 0.04, 600, 0.4, 7000
 
 # Figure
 fig_ratio = 2
-fig_dimension = 5
+fig_dimension = 7
 fig = plt.figure()
 ax = plt.subplot(1,1,1)
 ax.grid(color="#dddddd", zorder=-1)
@@ -61,11 +61,10 @@ AI_v = {
 }
 
 # Datapoints
-# AI can be the name of a benchmark or an actual value
 datapoints = [
-  {"AI" : "MyBWHungryBenchmark",     "GFLOPs" : 20.00,   "label"  : "This is lame",         "annotation" : "(I'm lame)"},
-  {"AI" : 8,                         "GFLOPs" : 1000.00, "label"  : "This is pretty cool"},
-  {"AI" : "MyCPUIntensiveBenchmark", "GFLOPs" : 3000.00, "label"  : "This is unbelievable"},
+  {"AI" : "MyBWHungryBenchmark",     "GFLOPs" : 20.00,  "label"  : "I'm lame",          "prop" : ["whatever", "..."]},
+  {"AI" : 10,                        "GFLOPs" : 1000.00,  "label"  : "I'm pretty cool",  "prop" : ["whatever", "..."]},
+  {"AI" : "MyCPUIntensiveBenchmark", "GFLOPs" : 3000.00, "label"  : "I'm unbelievable", "prop" : ["whatever", "..."]},
   
 ]
 
@@ -87,6 +86,9 @@ def set_size(w,h, ax=None):
 ##########################################################
 
 # Axis sizes
+# In case of linear plotting you might need something like this: m = float(xmax-xmin)/(ymax-ymin)
+#m = np.log(xmax-xmin)/np.log(ymax-ymin)
+#mid_angle = np.arctan(m)/np.pi*180
 xlogsize = float(np.log10(xmax/xmin))
 ylogsize = float(np.log10(ymax/ymin))
 m = xlogsize/ylogsize
@@ -115,13 +117,17 @@ for slope in mem_bottlenecks:
     zorder=10)
 
   # Label
-  xpos = xmin*(10**(xlogsize*0.016))
-  ypos = xpos*slope["val"]*(10**(ylogsize*0.004))
+  xpos = xmin*(10**(xlogsize*0.04))
+  ypos = xpos*slope["val"]
   if ypos<ymin:
     ypos = ymin*(10**(ylogsize*0.02))
     xpos = ypos/slope["val"]
   pos = (xpos, ypos)
 
+  # In case of linear plotting you might need something like this: trans_angle = np.arctan(slope["val"]*m)*180/np.pi
+  #trans_angle = 45*m
+  # print "\t" + str(trans_angle) + "°"
+  
   ax.annotate(slope["name"] + ": " + str(slope["val"]) + " GB/s", pos,
     rotation=np.arctan(m/fig_ratio)*180/np.pi, rotation_mode='anchor',
     fontsize=11,
@@ -147,6 +153,7 @@ for roof in cpu_roofs:
 
   # Label
   ax.text(
+    #roof["val"]/max_slope*10,roof["val"]*1.1,
     xmax/(10**(xlogsize*0.01)), roof["val"]*(10**(ylogsize*0.01)),
     roof["name"] + ": " + str(roof["val"]) + " GFLOPs",
     ha="right",
@@ -155,16 +162,15 @@ for roof in cpu_roofs:
 
 print
 
-# Draw benchmarks lifts
+#plt.xticks(list(plt.xticks()[0]) + [AI for n,AI in AI_v.items()], list(plt.xticks()[0]) + [str(AI) for n,AI in AI_v.items()])
 for benchmark in AI_v:
   AI = AI_v[benchmark]
   print "benchmark\t\"" + benchmark + "\"\t\t" + str(AI) + " GFLOP/Byte"
 
   plt.axvline(x=AI, dashes=[10, 10, 3, 10], linewidth=0.4, color="#aaaaaa")
 
-  # Label
   ax.text(
-    AI/(10**(xlogsize*0.02)), ymin*(10**(ylogsize*0.03)),
+    AI/1.15, ymin*1.24,
     benchmark,
     fontsize=12,
     rotation="90",
@@ -176,35 +182,23 @@ for point in datapoints:
   AI = point["AI"]
   if isinstance(AI,str):
     AI = AI_v[AI]
-  
-  # Label
-  label = "_nolabel_"
-  if "label" in point:
-    label = point["label"];
 
-  ax.scatter(AI, point["GFLOPs"], label=label, zorder=100)
-
-  # Annotation
-  if "annotation" in point:
-    ax.annotate(point["annotation"], (AI*(10**(xlogsize*0.005)), point["GFLOPs"]*(10**(ylogsize*0.005))),
-    fontsize=9,
-    color="k")
+  ax.scatter(AI, point["GFLOPs"], label=point["label"], zorder=100)
 
 # Logarithmic axis labels format
-ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda y,pos: ('{{:.{:1d}f}}'.format(int(np.maximum(-np.log10(y),0)))).format(y)))
-ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda y,pos: ('{{:.{:1d}f}}'.format(int(np.maximum(-np.log10(y),0)))).format(y)))
+#ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda y,pos: ('{{:.{:1d}f}}'.format(int(np.maximum(-np.log10(y),0)))).format(y)))
+#ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda y,pos: ('{{:.{:1d}f}}'.format(int(np.maximum(-np.log10(y),0)))).format(y)))
 
 # Set aspect
 ax.set_xlim(xmin, xmax)
 ax.set_ylim(ymin, ymax)
 
-plt.figlegend(loc="best", fontsize=14)
-plt.title("Rooflini example", fontsize=23)
+plt.figlegend(loc="best")
+plt.title("Rooflini example", fontsize=20)
 plt.tight_layout()
 set_size(fig_dimension*fig_ratio,fig_dimension)
 plt.show()
 
-# Save file
 pp = PdfPages(filename)
 pp.savefig(fig)
 pp.close()
