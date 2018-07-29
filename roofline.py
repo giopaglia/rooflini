@@ -13,10 +13,48 @@ import re
 import json
 import math
 
+# Filename
 filename = "roofline.pdf"
 if(sys.argc==1):
   filename = sys.argv[1]
+
+# Figure
+fig = plt.figure(figsize=(10, 40));
+ax = plt.subplot(1,1,1)
+ax.grid(color="#dddddd", zorder=-1)
+ax.set_xlabel("Arithmetic Intensity (FLOP/Byte)", fontsize=15)
+ax.set_ylabel("Performance (GFLOP/s)", fontsize=15)
+
+# Architecture-specific roofs
+cpu_roofs = [
+  {"name" : "Scalar Add Peak",    "val" : 98.48},
+  {"name" : "DP Vector Add Peak", "val" : 843.06},
+  {"name" : "DP Vector FMA Peak", "val" : 1691.96}
+]
+mem_bottlenecks = [
+  {"name" : "L1 Bandwidth",     "val" : 7398.95},
+  {"name" : "L2 Bandwidth",     "val" : 1237.34},
+  {"name" : "MCDRAM Bandwidth", "val" : 393.75},
+  {"name" : "DDR Bandwidth",    "val" : 81.35}
+]
+
+## Plot settings
+
+# Window rectangle (axis limits)
+xmin, xmax, ymin, ymax = 0.6, 60, 40, 4000
+
+
+##########################################################
+########################## Data ##########################
+
+AI_v = {"taylor-green3D" : 2.29, "couette-flow" : 4.26}
+datapoints = [
+  {"type" : "taylor-green3D", "label" : "Flat Mode", "prop" : ["D3Q27", "CAoSoA",  192, 192,  0], "GFLOPs" : 627.51},
+  {"type" : "taylor-green3D", "label" : "Cache Mode: 1.4GB lattice", "prop" : ["D3Q27", "caosoa", 192,  192,  0], "GFLOPs" : 545.51},
+  {"type" : "couette-flow", "label" : "Flat Mode + prefetch", "prop" : ["D3Q27", "caosoa", 192,  64,  0], "GFLOPs" : 1151.03},
   
+]
+
 ##############################################
 def get_color(point):
   if point["label"] == "Flat Mode":
@@ -65,9 +103,6 @@ def str_benchmark(benchmark):
     return "Couette Flow"
 ##############################################
 
-fig = plt.figure(figsize=(10, 40));
-ax = plt.subplot(1,1,1)
-
 def set_size(w,h, ax=None):
   """ w, h: width, height in inches """
   if not ax: ax=plt.gca()
@@ -79,49 +114,10 @@ def set_size(w,h, ax=None):
   figh = float(h)/(t-b)
   ax.figure.set_size_inches(figw, figh)
 
-ax.grid(color="#dddddd", zorder=-1)
-ax.set_xlabel("Arithmetic Intensity (FLOP/Byte)", fontsize=15)
-ax.set_ylabel("Performance (GFLOP/s)", fontsize=15)
-
-##########################################################
-################# Architecture Specific ##################
-
-cpu_roofs = [
-  {"name" : "Scalar Add Peak",    "val" : 98.48},
-  {"name" : "DP Vector Add Peak", "val" : 843.06},
-  {"name" : "DP Vector FMA Peak", "val" : 1691.96}
-]
-mem_bottlenecks = [
-  {"name" : "L1 Bandwidth",     "val" : 7398.95},
-  {"name" : "L2 Bandwidth",     "val" : 1237.34},
-  {"name" : "MCDRAM Bandwidth", "val" : 393.75},
-  {"name" : "DDR Bandwidth",    "val" : 81.35}
-]
 
 ##########################################################
 
-##########################################################
-##################### Plot settings ######################
-
-# Roofline window: Rect (x0, x1, y0, y1)
-window_rect = [0.6, 60, 40, 4000]
-#window_rect = [0.1, 10000, 0.1, 10000]
-#window_rect = [1, 60, 10, 4000]
-##########################################################
-
-
-##########################################################
-########################## Data ##########################
-
-AI_v = {"taylor-green3D" : 2.29, "couette-flow" : 4.26}
-datapoints = [
-  {"type" : "taylor-green3D", "label" : "Flat Mode", "prop" : ["D3Q27", "CAoSoA",  192, 192,  0], "GFLOPs" : 627.51},
-  {"type" : "taylor-green3D", "label" : "Cache Mode: 1.4GB lattice", "prop" : ["D3Q27", "caosoa", 192,  192,  0], "GFLOPs" : 545.51},
-  {"type" : "couette-flow", "label" : "Flat Mode + prefetch", "prop" : ["D3Q27", "caosoa", 192,  64,  0], "GFLOPs" : 1151.03},
-  
-]
-
-##########################################################
+window_rect = [xmin, xmax, ymin, ymax]
 
 max_roof = cpu_roofs[0]["val"]
 max_slip = mem_bottlenecks[0]["val"]
@@ -206,8 +202,8 @@ for point in datapoints:
   i += 1
 set_size(6,3)
 
-ax.set_xlim(window_rect[0], window_rect[1])
-ax.set_ylim(window_rect[2], window_rect[3])
+ax.set_xlim(xmin, xmax)
+ax.set_ylim(ymin, ymax)
 
 # axis labels format
 ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda y,pos: ('{{:.{:1d}f}}'.format(int(np.maximum(-np.log10(y),0)))).format(y)))
