@@ -4,6 +4,6 @@ Do YOU want to draw an Intel Advisor style Roofline Analysis plot? Then you're i
 This is a Python solution with which you can freely set:
 - roofs and upper bounds (with labels);
 - data points;
-- rectangle window;
+- plot figure aspect and ratio;
 
 Try it out and make it your own!
