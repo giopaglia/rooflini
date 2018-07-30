@@ -9,4 +9,4 @@ This is a simple Python solution which let you freely set:
 Try it out and make it your own!
 
 Regards,
-FiveStarLife
+FireSterLine
