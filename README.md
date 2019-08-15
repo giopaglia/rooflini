@@ -1,12 +1,12 @@
 # Rooflini
-Do YOU want to draw an Intel Advisor style Roofline Analysis plot? Then you're in the right place!
+Do you want to draw an Intel Advisor style Roofline Analysis plot?
 
-This is a simple Python solution which let you freely set:
+This is a Python script which let you freely set:
 - roofs and upper bounds (with labels);
 - data points;
 - plot figure aspect and ratio;
 
-Try it out and make it your own!
+Try it out and make it your own.
 
 Regards,
 FireSterLine
