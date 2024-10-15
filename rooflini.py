@@ -93,8 +93,8 @@ xlogsize = float(np.log10(xmax/xmin))
 ylogsize = float(np.log10(ymax/ymin))
 m = xlogsize/ylogsize
 
-print "Axis limits: 10^[(" + str(np.log10(xmax)) + " -> " + str(np.log10(xmin)) + ") x (" + str(np.log10(ymax)) + " ->" + str(np.log10(ymin)) + ")] = 10^[" + str(xlogsize) + " x " + str(ylogsize) + "]"
-print "Plot logarithmic ratio: " + str(m) + "\n"
+print("Axis limits: 10^[(" + str(np.log10(xmax)) + " -> " + str(np.log10(xmin)) + ") x (" + str(np.log10(ymax)) + " ->" + str(np.log10(ymin)) + ")] = 10^[" + str(xlogsize) + " x " + str(ylogsize) + "]")
+print("Plot logarithmic ratio: " + str(m) + "\n")
 # START
 max_roof  = cpu_roofs[0]["val"]
 max_slope = mem_bottlenecks[0]["val"]
@@ -106,7 +106,7 @@ for roof in cpu_roofs:
 
 # Draw slopes
 for slope in mem_bottlenecks:
-  print "slope\t\"" + slope["name"] + "\"\t\t" + str(slope["val"]) + " GB/s",
+  print("slope\t\"" + slope["name"] + "\"\t\t" + str(slope["val"]) + " GB/s")
 
   y = [0, max_roof]
   x = [float(yy)/slope["val"] for yy in y]
@@ -126,7 +126,7 @@ for slope in mem_bottlenecks:
 
   # In case of linear plotting you might need something like this: trans_angle = np.arctan(slope["val"]*m)*180/np.pi
   #trans_angle = 45*m
-  # print "\t" + str(trans_angle) + "°"
+  # print("\t" + str(trans_angle) + "°")
   
   ax.annotate(slope["name"] + ": " + str(slope["val"]) + " GB/s", pos,
     rotation=np.arctan(m/fig_ratio)*180/np.pi, rotation_mode='anchor',
@@ -142,7 +142,7 @@ print
 
 # Draw roofs
 for roof in cpu_roofs:
-  print "roof\t\"" + roof["name"] + "\"\t\t" + str(roof["val"]) + " GFLOP/s"
+  print("roof\t\"" + roof["name"] + "\"\t\t" + str(roof["val"]) + " GFLOP/s")
 
   x = [roof["val"]/max_slope, xmax*10]
   ax.loglog(x, [roof["val"] for xx in x], linewidth=1.0,
@@ -165,7 +165,7 @@ print
 #plt.xticks(list(plt.xticks()[0]) + [AI for n,AI in AI_v.items()], list(plt.xticks()[0]) + [str(AI) for n,AI in AI_v.items()])
 for benchmark in AI_v:
   AI = AI_v[benchmark]
-  print "benchmark\t\"" + benchmark + "\"\t\t" + str(AI) + " GFLOP/Byte"
+  print("benchmark\t\"" + benchmark + "\"\t\t" + str(AI) + " GFLOP/Byte")
 
   plt.axvline(x=AI, dashes=[10, 10, 3, 10], linewidth=0.4, color="#aaaaaa")
 
@@ -193,10 +193,12 @@ for point in datapoints:
 ax.set_xlim(xmin, xmax)
 ax.set_ylim(ymin, ymax)
 
-plt.figlegend(loc="best")
+plt.figlegend()
+# plt.figlegend(loc="best")
 plt.title("Rooflini example", fontsize=20)
 plt.tight_layout()
 set_size(fig_dimension*fig_ratio,fig_dimension)
+plt.savefig("roofline.png")
 plt.show()
 
 pp = PdfPages(filename)
