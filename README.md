@@ -1,7 +1,7 @@
 # Rooflini
 Do you want to draw an Intel Advisor style Roofline Analysis plot?
 
-<div align="center"><img src="roofline.png" alt="" title="Roofline analysis plot" width="200"></div>
+<div align="center"><img src="roofline.png" alt="" title="Roofline analysis plot" width="600"></div>
 
 This is a Python script which lets you freely set:
 - roofs and upper bounds (with labels);
